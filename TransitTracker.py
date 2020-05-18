@@ -1,6 +1,6 @@
 import json
 from urllib.request import urlopen
-import datetime
+from datetime import datetime
 
 api_key = "9Ld737shDDwqfsXWSZ3m"
 
@@ -29,17 +29,23 @@ route-schedules : 	route, scheduled-stops
 													variant: key, name
 '''
 
-def calcWaitTime(est): 
-	now = str(datetime.datetime.now())
-	now = now[11:19]
-	e_hrs = int(est[:2])
-	e_min = int(est[3:5])
-	n_hrs = int(now[:2])
-	n_min = int(now[3:5])
-	wait_time =  str(e_hrs-n_hrs) + ":" + str(e_min-n_min)
+# returns a timedelta object thats the difference of now and estimated_time parameter
+# parses the estimated_time parameter into a dateitme object to allow for calculations
+def calcWaitTime(estimated_time, now = datetime.now(), interval = 'default'): 
+	
+	est_year = int(estimated_time[:4])
+	est_month = int(estimated_time[5:7])
+	est_day = int(estimated_time[8:10])
+	est_hour = int(estimated_time[11:13])
+	est_min = int(estimated_time[14:16])
+	est_sec = int(estimated_time[17:19])
+	
+	est_datetime = datetime(est_year,est_month,est_day,est_hour,est_min,est_sec)
+	print(est_datetime)
 
-	return wait_time
-
+	duration = est_datetime - now
+	# print(duration)
+	return str(duration);
 
 
 
@@ -50,7 +56,7 @@ for route_schedules in data['stop-schedule']['route-schedules']:
 	for keys in route_schedules['scheduled-stops']:
 		cancelled = keys['cancelled']
 		arr_est_time = keys['times']['arrival']['estimated']
-		arr_est_time =  arr_est_time[11:]
+		# arr_est_time =  arr_est_time[11:]
 		name = keys['variant']['name']
 		wait_time = calcWaitTime(arr_est_time)
 	stop_routes[bus_keys] = name, wait_time#,coverage,cancelled,arr_est_time
